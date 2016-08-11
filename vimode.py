@@ -627,6 +627,14 @@ def key_A(buf, input_line, cur, count):
     set_cur(buf, input_line, len(input_line), False)
     set_mode("INSERT")
 
+def key_p(buf, input_line, cur, count):
+    set_cur(buf, input_line, len(input_line), False)
+    weechat.command("", "/input clipboard_paste")
+
+def key_slash(buf, input_line, cur, count):
+    set_mode("INSERT")
+    weechat.command("", "/input insert /")
+
 def key_I(buf, input_line, cur, count):
     """Move cursor to first non-blank character and start Insert mode.
 
@@ -636,6 +644,10 @@ def key_I(buf, input_line, cur, count):
     pos, _, _ = motion_carret(input_line, cur, 0)
     set_cur(buf, input_line, pos)
     set_mode("INSERT")
+
+def key_go(buf, input_line, cur, count):
+    if count > 0:
+        weechat.command("", "/buffer %s" % count)
 
 def key_G(buf, input_line, cur, count):
     """Scroll to specified line or bottom of buffer.
@@ -765,8 +777,8 @@ def key_comma(buf, input_line, cur, count):
 
 # String values will be executed as normal WeeChat commands.
 # For functions, see `key_base()` for reference.
-VI_KEYS = {'j': "/window scroll_down",
-           'k': "/window scroll_up",
+VI_KEYS = {'j': "/input history_next",
+           'k': "/input history_previous",
            'G': key_G,
            'gg': "/window scroll_top",
            'x': "/input delete_next_char",
@@ -780,8 +792,12 @@ VI_KEYS = {'j': "/window scroll_down",
            'A': key_A,
            'I': key_I,
            'yy': key_yy,
-           'p': "/input clipboard_paste",
-           '/': "/input search_text_here",
+           'p': key_p,
+           'P': "/input clipboard_paste",
+           'u': "/input undo",
+           '\x01R': "/input redo",
+           '/': key_slash,
+           '?': "/input search_text_here",
            'gt': "/buffer -1",
            'K': "/buffer -1",
            'gT': "/buffer +1",
@@ -828,7 +844,7 @@ VI_KEYS = {'j': "/window scroll_down",
            '\x01Wv': "/window splitv",
            '\x01Wq': "/window merge",
            ';': key_semicolon,
-           ',': key_comma}
+           ',': key_go}
 
 # Add alt-j<number> bindings.
 for i in range(10, 99):
@@ -862,6 +878,8 @@ def cb_check_esc(data, remaining_calls):
         # Cancel any current partial commands.
         vi_buffer = ""
         cmd_text = ""
+        # weechat.command("", "/cursor stop")
+        weechat.command("", "/input search_stop")
         weechat.command("", "/bar hide vi_cmd")
         catching_keys_data = {'amount': 0}
         weechat.bar_item_update("vi_buffer")
