@@ -37,7 +37,7 @@ import weechat
 # Script info.
 # ============
 
-SCRIPT_NAME = "vimode"
+SCRIPT_NAME = "vimode-arc"
 SCRIPT_AUTHOR = "GermainZ <germanosz@gmail.com>"
 SCRIPT_VERSION = "0.5"
 SCRIPT_LICENSE = "GPL3"
