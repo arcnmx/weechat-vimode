@@ -455,8 +455,15 @@ def operator_d(buf, input_line, pos1, pos2, overwrite=False):
     if overwrite:
         end += 1
     input_line = list(input_line)
+    deleted = input_line[start:end]
     del input_line[start:end]
     input_line = "".join(input_line)
+
+    # there is no direct way to influence the internal clipboard, so...
+    weechat.buffer_set(buf, "input", "".join(deleted))
+    weechat.buffer_set(buf, "input_pos", "0")
+    weechat.command("", "/input delete_end_of_line")
+
     weechat.buffer_set(buf, "input", input_line)
     set_cur(buf, input_line, start)
 
@@ -782,13 +789,23 @@ def cb_motion_T(update_last=True):
 # Keys:
 # -----
 
+def key_dd(buf, input_line, cur, count):
+    """Delete line.
+
+    See Also:
+        `key_base()`.
+    """
+    # /input delete_line does not change internal clipboard, so do this in two commands instead
+    weechat.command("", "/input move_beginning_of_line")
+    weechat.command("", "/input delete_end_of_line")
+
 def key_cc(buf, input_line, cur, count):
     """Delete line and start Insert mode.
 
     See Also:
         `key_base()`.
     """
-    weechat.command("", "/input delete_line")
+    key_dd(buf, input_line, cur, count)
     set_mode("INSERT")
 
 def key_C(buf, input_line, cur, count):
@@ -1040,7 +1057,7 @@ VI_DEFAULT_KEYS = {'G': key_G,
                    'gg': "/window scroll_top",
                    'x': "/input delete_next_char",
                    'X': "/input delete_previous_char",
-                   'dd': "/input delete_line",
+                   'dd': key_dd,
                    'D': "/input delete_end_of_line",
                    'cc': key_cc,
                    'S': key_cc,
