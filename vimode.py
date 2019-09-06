@@ -1199,19 +1199,23 @@ class UMParser:
         """
         # >>> INSERT MODE SEQUENCE
         if mode == 'INSERT':
-            match = re.search('<(cr|esc)>', vi_keys.lower())
+            match = re.search('<(cr|esc|icmd)>', vi_keys.lower())
             enter = False
+            icmd = False
 
             if match:
                 set_mode('NORMAL')
                 index = match.end()
                 if match.group() == '<cr>':
                     enter = True
+                elif match.group() == '<icmd>':
+                    icmd = True
             else:
                 index = start = len(vi_keys)
 
             start = match.start() if match else len(vi_keys)
-            return self.imode_capture(vi_keys[:start], enter=enter), index
+            if not icmd:
+                return self.imode_capture(vi_keys[:start], enter=enter), index
 
         # >>> VI_KEY
         key_map = VI_DEFAULT_KEYS if self.noremap else VI_KEYS
@@ -1236,7 +1240,7 @@ class UMParser:
                     return action, len(motion) + 1
 
         # >>> WEECHAT COMMAND
-        match = re.search('^[:/](.*?)<(CR|cr)>', vi_keys)
+        match = re.search('^[:/](.*?)<(CR|cr|icmd|ICMD)>', vi_keys)
         if match:
             end = match.end()
             group = match.groups()[0]
