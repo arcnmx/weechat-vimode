@@ -1791,7 +1791,7 @@ def load_user_mappings():
         if vimode_settings[key]:
             if isinstance(vimode_settings[key], dict):
                 continue
-            mappings.update(json.loads(vimode_settings[key]))
+            mappings.update(json.loads(vimode_settings[key].replace('\\\\x01', '\\u0001')))
         vimode_settings[key] = mappings
         for k, v in mappings.items():
             VI_KEYS[k] = UserMapping(k, v, noremap=noremap)
