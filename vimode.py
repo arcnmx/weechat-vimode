@@ -1024,9 +1024,11 @@ def key_u(buf, input_line, cur, count):
     if buf not in undo_history:
         return
     for _ in range(max(count, 1)):
-        if undo_history_index[buf] > -len(undo_history[buf]):
+        while undo_history_index[buf] >= -len(undo_history[buf]) and input_line == undo_history[buf][undo_history_index[buf]]:
             undo_history_index[buf] -= 1
+        if undo_history_index[buf] >= -len(undo_history[buf]):
             input_line = undo_history[buf][undo_history_index[buf]]
+            undo_history_index[buf] -= 1
             weechat.buffer_set(buf, "input", input_line)
         else:
             break
@@ -1042,6 +1044,8 @@ def key_ctrl_r(buf, input_line, cur, count):
     for _ in range(max(count, 1)):
         if undo_history_index[buf] < -1:
             undo_history_index[buf] += 1
+            while undo_history_index[buf] < -1 and input_line == undo_history[buf][undo_history_index[buf]]:
+                undo_history_index[buf] += 1
             input_line = undo_history[buf][undo_history_index[buf]]
             weechat.buffer_set(buf, "input", input_line)
         else:
@@ -2143,10 +2147,12 @@ def cb_check_cmd_mode(data, remaining_calls):
 
 def add_undo_history(buf, input_line):
     """Add an item to the per-buffer undo history."""
-    if buf in undo_history:
-        if not undo_history[buf] or undo_history[buf][-1] != input_line:
+    if buf in undo_history and undo_history_index[buf] > -len(undo_history[buf]):
+        if undo_history[buf][undo_history_index[buf]] != input_line:
+            if undo_history_index[buf] < -1:
+                undo_history[buf] = undo_history[buf][:undo_history_index[buf]]
+                undo_history_index[buf] = -1
             undo_history[buf].append(input_line)
-            undo_history_index[buf] = -1
     else:
         undo_history[buf] = ['', input_line]
         undo_history_index[buf] = -1
