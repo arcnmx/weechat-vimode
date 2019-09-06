@@ -456,7 +456,7 @@ def operator_d(buf, input_line, pos1, pos2, overwrite=False):
     del input_line[start:end]
     input_line = "".join(input_line)
     weechat.buffer_set(buf, "input", input_line)
-    set_cur(buf, input_line, pos2)
+    set_cur(buf, input_line, start)
 
 def operator_c(buf, input_line, pos1, pos2, overwrite=False):
     """Delete text from `pos1` to `pos2` from the input and enter Insert mode.
@@ -469,7 +469,7 @@ def operator_c(buf, input_line, pos1, pos2, overwrite=False):
     """
     operator_d(buf, input_line, pos1, pos2, overwrite)
     set_mode("INSERT")
-    set_cur(buf, input_line, pos1)
+    set_cur(buf, input_line, min(pos1, pos2), False)
 
 def operator_y(buf, input_line, pos1, pos2, _):
     """Yank text from `pos1` to `pos2` from the input line.
@@ -551,7 +551,7 @@ def motion_b(input_line, cur, count):
     # "b" is just "e" on inverted data (e.g. "olleH" instead of "Hello").
     pos_inv = motion_e(input_line[::-1], len(input_line) - cur - 1, count)[1]
     pos = len(input_line) - pos_inv - 1
-    return cur, max(0, pos), True, False
+    return cur, max(0, pos), False, False
 
 def motion_B(input_line, cur, count):
     """Go `count` WORDS backwards and return position.
@@ -565,7 +565,7 @@ def motion_B(input_line, cur, count):
     if pos == -1:
         return cur, 0, False, False
     pos = len(input_line) - (pos + new_cur + 1)
-    return cur, pos, True, False
+    return cur, pos, False, False
 
 def motion_ge(input_line, cur, count):
     """Go to end of `count` words backwards and return position.
