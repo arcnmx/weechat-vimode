@@ -1609,17 +1609,6 @@ def cb_key_combo_default(data, signal, signal_data):
     if not matched and not catching_keys_data['amount']:
         vi_buffer = ""
         return weechat.WEECHAT_RC_OK_EAT
-    # Check if it's a command (user defined key mapped to a :cmd).
-    if vi_keys.startswith(":"):
-        weechat.hook_timer(1, 0, 1, "cb_exec_cmd", "{} {}".format(vi_keys,
-                                                                  count))
-        vi_buffer = ""
-        return weechat.WEECHAT_RC_OK_EAT
-    # It's a WeeChat command (user defined key mapped to a /cmd).
-    if vi_keys.startswith("/"):
-        weechat.command("", vi_keys)
-        vi_buffer = ""
-        return weechat.WEECHAT_RC_OK_EAT
 
     buf = weechat.current_buffer()
     input_line = weechat.buffer_get_string(buf, "input")
@@ -1633,7 +1622,7 @@ def cb_key_combo_default(data, signal, signal_data):
         catching_keys_data['keys'] += keys
         catching_keys_data['amount'] -= 1
 
-    # It's a default mapping. If the corresponding value is a string, we assume
+    # If the corresponding value is a string, we assume
     # it's a WeeChat command. Otherwise, it's a method we'll call.
     if vi_keys in VI_KEYS:
         if vi_keys not in ['u', '\x01R']:
@@ -2056,7 +2045,7 @@ def get_keys_and_count(combo):
         matched (bool): True if the combo has a (partial or full) match, False
             otherwise.
         combo (str): `combo` with the count removed. These are the actual keys
-            we should handle. User mappings are also expanded.
+            we should handle.
         count (int): count for `combo`.
     """
     # Look for a potential match (e.g. "d" might become "dw" or "dd" so we
@@ -2075,9 +2064,6 @@ def get_keys_and_count(combo):
                 break
         combo = combo.replace(count, "", 1)
         count = int(count)
-    # It's a WeeChat command.
-    if not matched and combo.startswith("/"):
-        matched = True
     # Check against defined keys.
     if not matched:
         for key in VI_KEYS:
