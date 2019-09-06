@@ -1244,7 +1244,7 @@ class UMParser:
                     return action, len(motion) + 1
 
         # >>> WEECHAT COMMAND
-        match = re.search('^[:/](.*?)<(CR|cr|icmd|ICMD)>', vi_keys)
+        match = re.search('^[%s:/](.*?)<(CR|cr|icmd|ICMD)>' % vimode_settings['user_command_mapping'], vi_keys)
         if match:
             end = match.end()
             group = match.groups()[0]
