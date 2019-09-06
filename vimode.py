@@ -1208,10 +1208,11 @@ class UMParser:
             icmd = False
 
             if match:
-                set_mode('NORMAL')
                 index = match.end()
                 if match.group() == '<cr>':
                     enter = True
+                elif match.group() == '<esc>':
+                    set_mode('NORMAL')
                 elif match.group() == '<icmd>':
                     icmd = True
             else:
