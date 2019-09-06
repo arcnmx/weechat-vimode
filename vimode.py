@@ -1243,7 +1243,7 @@ class UMParser:
                     action = self.vi_cmd_action(cmd, args)
             else:
                 action = functools.partial(do_command,
-                                           '/{}'.format(vi_keys[1:end - 4]))
+                                           '/{}'.format(group))
             return action, end
 
         # >>> VI_KEY
