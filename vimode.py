@@ -1221,28 +1221,6 @@ class UMParser:
             if not icmd:
                 return self.imode_capture(vi_keys[:start], enter=enter), index
 
-        # >>> VI_KEY
-        key_map = VI_DEFAULT_KEYS if self.noremap else VI_KEYS
-        for keys, command in key_map.items():
-            if vi_keys.startswith(keys):
-                if isinstance(command, str):
-                    return functools.partial(do_command, command), len(keys)
-                else:
-                    return command, len(keys)
-
-        # >>> VI_MOTION
-        for motion in VI_MOTIONS:
-            if vi_keys.startswith(motion):
-                return functools.partial(do_motion, motion), len(motion)
-
-        # >>> VI_OPERATOR
-        if len(vi_keys) > 1 and vi_keys[0] in VI_OPERATORS:
-            for motion in VI_MOTIONS:
-                if vi_keys[1:].startswith(motion):
-                    action = functools.partial(do_operator,
-                                               vi_keys[:len(motion) + 1])
-                    return action, len(motion) + 1
-
         # >>> WEECHAT COMMAND
         match = re.search('^[%s:/](.*?)<(CR|cr|icmd|ICMD)>' % vimode_settings['user_command_mapping'], vi_keys)
         if match:
@@ -1266,6 +1244,28 @@ class UMParser:
                 action = functools.partial(do_command,
                                            '/{}'.format(vi_keys[1:end - 4]))
             return action, end
+
+        # >>> VI_KEY
+        key_map = VI_DEFAULT_KEYS if self.noremap else VI_KEYS
+        for keys, command in key_map.items():
+            if vi_keys.startswith(keys):
+                if isinstance(command, str):
+                    return functools.partial(do_command, command), len(keys)
+                else:
+                    return command, len(keys)
+
+        # >>> VI_MOTION
+        for motion in VI_MOTIONS:
+            if vi_keys.startswith(motion):
+                return functools.partial(do_motion, motion), len(motion)
+
+        # >>> VI_OPERATOR
+        if len(vi_keys) > 1 and vi_keys[0] in VI_OPERATORS:
+            for motion in VI_MOTIONS:
+                if vi_keys[1:].startswith(motion):
+                    action = functools.partial(do_operator,
+                                               vi_keys[:len(motion) + 1])
+                    return action, len(motion) + 1
 
         # >>> PARSING ERROR
         if vi_keys[0] in (':', '/'):
