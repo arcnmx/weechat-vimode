@@ -1574,7 +1574,7 @@ def cb_key_combo_default(data, signal, signal_data):
         else:
             return weechat.WEECHAT_RC_OK
     # Enter command mode.
-    elif keys in [vimode_settings['user_command_mapping'], vimode_settings['user_search_mapping']]:
+    elif keys in [vimode_settings['user_command_mapping'], vimode_settings['user_search_mapping']] and not catching_keys_data['amount']:
         if keys == vimode_settings['user_search_mapping']:
             weechat.command("", "/input search_text_here")
             if not weechat.config_string_to_boolean(
