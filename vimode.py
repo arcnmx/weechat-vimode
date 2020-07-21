@@ -2226,7 +2226,7 @@ if __name__ == "__main__":
     weechat.bar_item_new("line_numbers", "cb_line_numbers", "")
     weechat.bar_new("vi_line_numbers", "on", "0", "window", "", "left",
                     "vertical", "vertical", "0", "0", "default", "default",
-                    "default", "0", "line_numbers")
+                    "default", "default", "0", "line_numbers")
     weechat.hook_config("plugins.var.python.%s.*" % SCRIPT_NAME, "cb_config",
                         "")
     weechat.hook_signal("key_pressed", "cb_key_pressed", "")
